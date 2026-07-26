@@ -1,10 +1,25 @@
-FROM python:3.9.2-slim-buster
-RUN mkdir /bot && chmod 777 /bot
-WORKDIR /bot
+FROM python:3.10-slim-bullseye
+
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt -qq update && apt -qq install -y git wget pv jq python3-dev ffmpeg mediainfo
-RUN apt-get install neofetch wget -y -f
+
+RUN apt-get update && apt-get install -y \
+    git \
+    wget \
+    pv \
+    jq \
+    ffmpeg \
+    mediainfo \
+    build-essential \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /bot
+
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir -r requirements.txt
 
 COPY . .
-RUN pip3 install -r requirements.txt
-CMD ["bash","run.sh"]
+
+CMD ["bash", "run.sh"]
